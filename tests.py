@@ -3,10 +3,12 @@ from tkinter import ttk
 from datetime import datetime, timedelta
 from tkinter import messagebox
 import pytz
-from variables import *
 import csv
 import os
 
+sig_types_list = ['EMBD TS', 'SEV TURB', 'SEV ICE']
+firs_list = ['SBAZ', 'SBCW', 'SBBS', 'SBRE', 'SBAO']
+envios_list = ['OPMET', 'SIMM', 'MHS']
 root = Tk()
 
 class Application:

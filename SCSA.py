@@ -3,17 +3,20 @@ from tkinter import ttk
 from datetime import datetime, timedelta
 from tkinter import messagebox
 import pytz
-from variables import *
 import csv
 import os
 
 root = Tk()
+sig_types_list = ['EMBD TS', 'SEV TURB', 'SEV ICE']
+firs_list = ['SBAZ', 'SBCW', 'SBBS', 'SBRE', 'SBAO']
+envios_list = ['OPMET', 'SIMM', 'MHS']
 
 class Application:
     def __init__(self):
         self.root = root
         self.root.iconbitmap('./images/cimaer.ico')
         self.is_ts = True
+        self.cleared_coord = True
         self.h1var = StringVar()
         self.h2var = StringVar()
         self.topvar = StringVar()
@@ -39,6 +42,7 @@ class Application:
         self.notebook()
         self.frames()
         self.sigtab()
+        self.check_error()
         root.mainloop()
 
     def tela(self):
@@ -115,7 +119,7 @@ class Application:
         self.out_msg.place(relx=0.01, y= 470, relwidth=0.98, relheight=0.35)
         self.copy_all = Button(self.sigframe, text='Copiar Tudo', command=lambda: self.copy_all_func())
         self.copy_all.place(x=1049, y=442)
-        self.create_msg = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.create_sigs())
+        self.create_msg = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.check_error())
         self.create_msg.place(x=960, y=442)
         self.del_msg = Button(self.sigframe, text='Limpar Mensagens', command=lambda: self.clr_msg())
         self.del_msg.place(x=1200, y=442)
@@ -129,7 +133,7 @@ class Application:
         self.actual_day.place(relx=0.01, y=25)
         self.lb_bar = Label(self.frame_1, text='/', background='#009DE0')
         self.lb_bar.place(x=50, y=25)
-        self.use_actual = Checkbutton(self.frame_1, text='Usar horário atual', background='#009DE0', variable=self.var_use_actual, command=self.atualizar_validade)
+        self.use_actual = Checkbutton(self.frame_1, text='Usar horário atual + 2 min', background='#009DE0', variable=self.var_use_actual, command=self.atualizar_validade)
         self.use_actual.place(x=110, y=24)
         self.valid_1 = Entry(self.frame_1, textvariable=self.h1var)
         self.valid_1.place(x=20, y=26, width=28)
@@ -272,33 +276,69 @@ class Application:
 
     def atualizar_validade(self):
         if self.var_use_actual.get() == 1:
-            data_hora_utc = datetime.now(self.utc_zone).strftime("%H%M")
+            data_hora_utc = (datetime.now(self.utc_zone) + timedelta(minutes=2)).strftime("%H%M")
             self.valid_1.delete(0, END)
             self.valid_1.insert(0, data_hora_utc)
-            self.valid_1.config(state='readonly')
+            self.valid_1.configure(state='readonly')
         else:
-            self.valid_1.config(state='normal')
+            self.valid_1.configure(state='normal')
             self.valid_1.delete(0, END)
 
     def limpar_coord(self, coord):
         coord.delete(1.0, END)
+        self.cleared_coord = True
 
-    def check_error_sig(self):
-        if self.check_firs.get() == '':
-            messagebox.showerror('Error', 'Selecione a FIR do SIGMET')
-            if len(self.h1var.get()) != 4:
-                messagebox.showerror('Error', 'O início da validade deve ter 4 caracteres')
-                self.valid_1.delete(0, END)
-                if len(self.h2var.get()) != 6:
-                    messagebox.showerror('Error', 'O fim da validade deve ter 6 caracteres')
-                    self.valid_2.delete(0, END)
-                    if self.is_ts == True and len(self.top.get()) != 3:
-                        messagebox.showerror('Error', 'O nível de vôo deve ter 3 caracteres')
-                        self.top.delete(0, END)
-                        if self.is_ts == False and len(self.limits1.get()) != 3 or len(self.limits2.get()) != 3:
-                            messagebox.showerror('Error', 'O nível de vôo deve ter 3 caracteres')
-        
+    def check_error(self):
+        all_fine = True
+
+        if len(self.valid_1.get()) != 4:
+            self.valid_1.configure(bg='red')
+            all_fine = False
         else:
+            self.valid_1.configure(bg='white')
+
+        if len(self.valid_2.get()) != 6:
+            self.valid_2.configure(bg='red')
+            all_fine = False
+        else:
+            self.valid_2.configure(bg='white')
+
+        if self.check_firs.get() == '':
+            all_fine = False
+
+        if self.is_ts == True and len(self.top.get()) != 3:
+            self.top.configure(bg='red')
+            self.limits1.configure(bg='white')
+            self.limits2.configure(bg='white')
+            all_fine = False
+        elif self.is_ts == False:
+            if len(self.limits1.get()) != 3 or len(self.limits2.get()) != 3 or (int(self.limits2.get()) - int(self.limits1.get())) < 0:
+                self.limits1.configure(bg='red')
+                self.limits2.configure(bg='red')
+                self.top.configure(bg='white')
+                all_fine = False
+        else:
+            self.limits1.configure(bg='white')
+            self.limits2.configure(bg='white')
+            self.top.configure(bg='white')
+
+        if len(self.op_ent.get()) != 4:
+            self.op_ent.configure(bg='red')
+            all_fine = False
+        else:
+            self.op_ent.configure(bg='white')
+
+        if self.ent_previsor.get() == '':
+            self.ent_previsor.configure(bg='red')
+            all_fine = False
+        else:
+            self.ent_previsor.configure(bg='white')
+
+        if self.cleared_coord == False and self.multi_var.get() == 1:
+            all_fine = False
+            messagebox.showerror('Erro', 'Coordenadas repetidas')
+
+        if all_fine:
             self.create_sigs()
 
     def copy_all_func(self):
@@ -354,6 +394,7 @@ class Application:
 
     def create_sigs(self):
     # Verifica se o atributo `sigmet_list` existe, se não cria um
+        self.cleared_coord = False
         self.saved_messages = False
         if not hasattr(self, "sigmet_list"):
             self.sigmet_list = []
