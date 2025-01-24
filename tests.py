@@ -16,6 +16,7 @@ class Application:
         self.root = root
         self.root.iconbitmap('./images/cimaer.ico')
         self.is_ts = True
+        self.has_saved = True
         self.h1var = StringVar()
         self.h2var = StringVar()
         self.topvar = StringVar()
@@ -116,9 +117,9 @@ class Application:
         self.out_msg.place(relx=0.01, y= 470, relwidth=0.98, relheight=0.35)
         self.copy_all = Button(self.sigframe, text='Copiar Tudo', command=lambda: self.copy_all_func())
         self.copy_all.place(x=1049, y=442)
-        self.create_msg = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.create_sigs())
+        self.create_msg = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.check_error())
         self.create_msg.place(x=960, y=442)
-        self.del_msg = Button(self.sigframe, text='Limpar Mensagens', command=lambda: self.clr_msg())
+        self.del_msg = Button(self.sigframe, text='Limpar Mensagens', command=lambda: self.ask_clr_msg())
         self.del_msg.place(x=1200, y=442)
         self.gen_csv_bt = Button(self.sigframe, text='Salvar CSV', command=lambda: self.create_csv())#, command=lambda: self.clr_msg())
         self.gen_csv_bt.place(x=1130, y=442)
@@ -247,8 +248,17 @@ class Application:
     def ts_false(self):
         self.is_ts = False
 
-    def clr_msg(self):
-        """Limpa a caixa de texto e reinicia a contagem de SIGMETs."""
+    def ask_clr_msg(self):
+        if self.has_saved == False:
+            answer = messagebox.askyesno('Salvamento', 'Deseja salvar as mensagens no CSV?')
+            if answer == 'yes':
+                self.create_csv()
+            else:
+                self.clear_all()
+        else:
+            self.clear_all()
+
+    def clear_all(self):
         self.out_msg.delete("1.0", "end")  # Limpa o conteúdo da caixa de texto
         self.sigmet_list = []  # Limpa a lista temporária de SIGMETs
 
@@ -257,8 +267,6 @@ class Application:
             f"./SIGMET/{self.check_firs.get()}/SIGMET {self.check_firs.get()} {datetime.now().strftime('%d-%m-%Y')}.csv"
         )
         self.sig_number = last_seq_number + 1  # Define o próximo número como o próximo na sequência
-        
-        print("Mensagens limpas e contagem reiniciada!")
 
     def change_color_w(self):
         self.mov_ent.config(bg='white')
@@ -278,22 +286,53 @@ class Application:
     def limpar_coord(self, coord):
         coord.delete(1.0, END)
 
-    def check_error_sig(self):
-        if self.check_firs.get() == '':
-            messagebox.showerror('Error', 'Selecione a FIR do SIGMET')
-            if len(self.h1var.get()) != 4:
-                messagebox.showerror('Error', 'O início da validade deve ter 4 caracteres')
-                self.valid_1.delete(0, END)
-                if len(self.h2var.get()) != 6:
-                    messagebox.showerror('Error', 'O fim da validade deve ter 6 caracteres')
-                    self.valid_2.delete(0, END)
-                    if self.is_ts == True and len(self.top.get()) != 3:
-                        messagebox.showerror('Error', 'O nível de vôo deve ter 3 caracteres')
-                        self.top.delete(0, END)
-                        if self.is_ts == False and len(self.limits1.get()) != 3 or len(self.limits2.get()) != 3:
-                            messagebox.showerror('Error', 'O nível de vôo deve ter 3 caracteres')
-        
+    def check_error(self):
+        all_fine = True
+
+        if len(self.valid_1.get()) != 4:
+            self.valid_1.configure(bg='red')
+            all_fine = False
         else:
+            self.valid_1.configure(bg='white')
+
+        if len(self.valid_2.get()) != 6:
+            self.valid_2.configure(bg='red')
+            all_fine = False
+        else:
+            self.valid_2.configure(bg='white')
+
+        if self.check_firs.get() == '':
+            all_fine = False
+
+        if self.is_ts == True and len(self.top.get()) != 3:
+            self.top.configure(bg='red')
+            self.limits1.configure(bg='white')
+            self.limits2.configure(bg='white')
+            all_fine = False
+        elif self.is_ts == False:
+            if len(self.limits1.get()) != 3 or len(self.limits2.get()) != 3 or (int(self.limits2.get()) - int(self.limits1.get())) < 0:
+                self.limits1.configure(bg='red')
+                self.limits2.configure(bg='red')
+                self.top.configure(bg='white')
+                all_fine = False
+        else:
+            self.limits1.configure(bg='white')
+            self.limits2.configure(bg='white')
+            self.top.configure(bg='white')
+
+        if len(self.op_ent.get()) != 4:
+            self.op_ent.configure(bg='red')
+            all_fine = False
+        else:
+            self.op_ent.configure(bg='white')
+
+        if self.ent_previsor.get() == '':
+            self.ent_previsor.configure(bg='red')
+            all_fine = False
+        else:
+            self.ent_previsor.configure(bg='white')
+
+        if all_fine:
             self.create_sigs()
 
     def copy_all_func(self):
@@ -301,7 +340,7 @@ class Application:
         self.root.clipboard_append(self.out_msg.get('1.0', END))
 
     def create_csv(self):     
-        # Verifica se há mensagens a serem salvas
+        self.has_saved = True
         if not hasattr(self, "sigmet_list") or not self.sigmet_list:
             print("Nenhuma mensagem para salvar.")
             return
@@ -347,7 +386,7 @@ class Application:
         return last_seq_number
 
     def create_sigs(self):
-    # Verifica se o atributo `sigmet_list` existe, se não cria um
+        self.has_saved = False
         if not hasattr(self, "sigmet_list"):
             self.sigmet_list = []
 
@@ -359,7 +398,7 @@ class Application:
 
         # Se multi_var estiver desativado, limpa a mensagem de saída
         if self.multi_var.get() == 0:
-            self.clr_msg()
+            self.ask_clr_msg()
 
         # Determina o número sequencial da SIGMET
         if len(self.sigmet_list) > 0:  # Se já há mensagens criadas nesta sessão

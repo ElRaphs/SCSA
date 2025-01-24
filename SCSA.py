@@ -6,17 +6,17 @@ import pytz
 import csv
 import os
 
-root = Tk()
 sig_types_list = ['EMBD TS', 'SEV TURB', 'SEV ICE']
 firs_list = ['SBAZ', 'SBCW', 'SBBS', 'SBRE', 'SBAO']
 envios_list = ['OPMET', 'SIMM', 'MHS']
+root = Tk()
 
 class Application:
     def __init__(self):
         self.root = root
         self.root.iconbitmap('./images/cimaer.ico')
         self.is_ts = True
-        self.cleared_coord = True
+        self.has_saved = True
         self.h1var = StringVar()
         self.h2var = StringVar()
         self.topvar = StringVar()
@@ -37,12 +37,10 @@ class Application:
         self.status_type = StringVar()
         self.status_type.set('NC')
         self.sig_number = 0
-        self.saved_messages = True
         self.tela()
         self.notebook()
         self.frames()
         self.sigtab()
-        self.check_error()
         root.mainloop()
 
     def tela(self):
@@ -121,7 +119,7 @@ class Application:
         self.copy_all.place(x=1049, y=442)
         self.create_msg = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.check_error())
         self.create_msg.place(x=960, y=442)
-        self.del_msg = Button(self.sigframe, text='Limpar Mensagens', command=lambda: self.clr_msg())
+        self.del_msg = Button(self.sigframe, text='Limpar Mensagens', command=lambda: self.ask_clr_msg())
         self.del_msg.place(x=1200, y=442)
         self.gen_csv_bt = Button(self.sigframe, text='Salvar CSV', command=lambda: self.create_csv())#, command=lambda: self.clr_msg())
         self.gen_csv_bt.place(x=1130, y=442)
@@ -133,7 +131,7 @@ class Application:
         self.actual_day.place(relx=0.01, y=25)
         self.lb_bar = Label(self.frame_1, text='/', background='#009DE0')
         self.lb_bar.place(x=50, y=25)
-        self.use_actual = Checkbutton(self.frame_1, text='Usar horário atual + 2 min', background='#009DE0', variable=self.var_use_actual, command=self.atualizar_validade)
+        self.use_actual = Checkbutton(self.frame_1, text='Usar horário atual', background='#009DE0', variable=self.var_use_actual, command=self.atualizar_validade)
         self.use_actual.place(x=110, y=24)
         self.valid_1 = Entry(self.frame_1, textvariable=self.h1var)
         self.valid_1.place(x=20, y=26, width=28)
@@ -250,14 +248,17 @@ class Application:
     def ts_false(self):
         self.is_ts = False
 
-    def clr_msg(self):
-        if self.saved_messages == False:
-            answer = messagebox.askquestion('Salvar Mensagens', 'Salvar mensagens no CSV?')
+    def ask_clr_msg(self):
+        if self.has_saved == False:
+            answer = messagebox.askyesno('Salvamento', 'Deseja salvar as mensagens no CSV?')
             if answer == 'yes':
                 self.create_csv()
             else:
-                pass
-        """Limpa a caixa de texto e reinicia a contagem de SIGMETs."""
+                self.clear_all()
+        else:
+            self.clear_all()
+
+    def clear_all(self):
         self.out_msg.delete("1.0", "end")  # Limpa o conteúdo da caixa de texto
         self.sigmet_list = []  # Limpa a lista temporária de SIGMETs
 
@@ -266,8 +267,6 @@ class Application:
             f"./SIGMET/{self.check_firs.get()}/SIGMET {self.check_firs.get()} {datetime.now().strftime('%d-%m-%Y')}.csv"
         )
         self.sig_number = last_seq_number + 1  # Define o próximo número como o próximo na sequência
-        
-        print("Mensagens limpas e contagem reiniciada!")
 
     def change_color_w(self):
         self.mov_ent.config(bg='white')
@@ -276,17 +275,16 @@ class Application:
 
     def atualizar_validade(self):
         if self.var_use_actual.get() == 1:
-            data_hora_utc = (datetime.now(self.utc_zone) + timedelta(minutes=2)).strftime("%H%M")
+            data_hora_utc = datetime.now(self.utc_zone).strftime("%H%M")
             self.valid_1.delete(0, END)
             self.valid_1.insert(0, data_hora_utc)
-            self.valid_1.configure(state='readonly')
+            self.valid_1.config(state='readonly')
         else:
-            self.valid_1.configure(state='normal')
+            self.valid_1.config(state='normal')
             self.valid_1.delete(0, END)
 
     def limpar_coord(self, coord):
         coord.delete(1.0, END)
-        self.cleared_coord = True
 
     def check_error(self):
         all_fine = True
@@ -334,10 +332,6 @@ class Application:
         else:
             self.ent_previsor.configure(bg='white')
 
-        if self.cleared_coord == False and self.multi_var.get() == 1:
-            all_fine = False
-            messagebox.showerror('Erro', 'Coordenadas repetidas')
-
         if all_fine:
             self.create_sigs()
 
@@ -346,7 +340,7 @@ class Application:
         self.root.clipboard_append(self.out_msg.get('1.0', END))
 
     def create_csv(self):     
-        # Verifica se há mensagens a serem salvas
+        self.has_saved = True
         if not hasattr(self, "sigmet_list") or not self.sigmet_list:
             print("Nenhuma mensagem para salvar.")
             return
@@ -367,7 +361,6 @@ class Application:
         
         # Limpa a lista temporária após salvar
         self.sigmet_list = []
-        self.saved_messages = False
 
     def get_last_seq_number(self, file_name): 
         """Obtém o último número sequencial das mensagens no arquivo CSV.""" 
@@ -393,9 +386,7 @@ class Application:
         return last_seq_number
 
     def create_sigs(self):
-    # Verifica se o atributo `sigmet_list` existe, se não cria um
-        self.cleared_coord = False
-        self.saved_messages = False
+        self.has_saved = False
         if not hasattr(self, "sigmet_list"):
             self.sigmet_list = []
 
@@ -407,7 +398,7 @@ class Application:
 
         # Se multi_var estiver desativado, limpa a mensagem de saída
         if self.multi_var.get() == 0:
-            self.clr_msg()
+            self.ask_clr_msg()
 
         # Determina o número sequencial da SIGMET
         if len(self.sigmet_list) > 0:  # Se já há mensagens criadas nesta sessão
