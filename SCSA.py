@@ -79,36 +79,36 @@ class Application:
         self.clr_coord_1.place(relx=0.52, rely=0.056)
 
         #---------------------------------INPUT COORDENADA 2---------------------------------------
-        self.lb_coord_2 = Label(self.sigframe, text='Coordenada 2', background='lightblue')
-        self.lb_coord_2.place(relx=0.01, rely=0.12)
-        self.ent_coord_2 = Text(self.sigframe, wrap='word')
-        self.ent_coord_2.place(relx=0.01, rely=0.15, relwidth=0.5, relheight=0.07)
-        self.clr_coord_2 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_2))
-        self.clr_coord_2.place(relx=0.52, y=125)
+        # self.lb_coord_2 = Label(self.sigframe, text='Coordenada 2', background='lightblue')
+        # self.lb_coord_2.place(relx=0.01, rely=0.12)
+        # self.ent_coord_2 = Text(self.sigframe, wrap='word')
+        # self.ent_coord_2.place(relx=0.01, rely=0.15, relwidth=0.5, relheight=0.07)
+        # self.clr_coord_2 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_2))
+        # self.clr_coord_2.place(relx=0.52, y=125)
 
         #---------------------------------INPUT COORDENADA 3---------------------------------------
-        self.lb_coord_3 = Label(self.sigframe, text='Coordenada 3', background='lightblue')
-        self.lb_coord_3.place(relx=0.01, y=175)
-        self.ent_coord_3 = Text(self.sigframe, wrap='word')
-        self.ent_coord_3.place(relx=0.01, y=195, relwidth=0.5, relheight=0.07)
-        self.clr_coord_3 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_3))
-        self.clr_coord_3.place(relx=0.52, y=208)
+        # self.lb_coord_3 = Label(self.sigframe, text='Coordenada 3', background='lightblue')
+        # self.lb_coord_3.place(relx=0.01, y=175)
+        # self.ent_coord_3 = Text(self.sigframe, wrap='word')
+        # self.ent_coord_3.place(relx=0.01, y=195, relwidth=0.5, relheight=0.07)
+        # self.clr_coord_3 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_3))
+        # self.clr_coord_3.place(relx=0.52, y=208)
 
         #---------------------------------INPUT COORDENADA 4---------------------------------------
-        self.lb_coord_4 = Label(self.sigframe, text='Coordenada 4', background='lightblue')
-        self.lb_coord_4.place(relx=0.01, y=257)
-        self.ent_coord_4 = Text(self.sigframe, wrap='word')
-        self.ent_coord_4.place(relx=0.01, y=277, relwidth=0.5, relheight=0.07)
-        self.clr_coord_4 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_4))
-        self.clr_coord_4.place(relx=0.52, y=290)
+        # self.lb_coord_4 = Label(self.sigframe, text='Coordenada 4', background='lightblue')
+        # self.lb_coord_4.place(relx=0.01, y=257)
+        # self.ent_coord_4 = Text(self.sigframe, wrap='word')
+        # self.ent_coord_4.place(relx=0.01, y=277, relwidth=0.5, relheight=0.07)
+        # self.clr_coord_4 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_4))
+        # self.clr_coord_4.place(relx=0.52, y=290)
 
         #---------------------------------INPUT COORDENADA 5---------------------------------------
-        self.lb_coord_5 = Label(self.sigframe, text='Coordenada 5', background='lightblue')
-        self.lb_coord_5.place(relx=0.01, y=339)
-        self.ent_coord_5 = Text(self.sigframe, wrap='word')
-        self.ent_coord_5.place(relx=0.01, y=359, relwidth=0.5, relheight=0.07)
-        self.clr_coord_5 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_5))
-        self.clr_coord_5.place(relx=0.52, y=372)
+        # self.lb_coord_5 = Label(self.sigframe, text='Coordenada 5', background='lightblue')
+        # self.lb_coord_5.place(relx=0.01, y=339)
+        # self.ent_coord_5 = Text(self.sigframe, wrap='word')
+        # self.ent_coord_5.place(relx=0.01, y=359, relwidth=0.5, relheight=0.07)
+        # self.clr_coord_5 = Button(self.sigframe, text='Limpar', command=lambda: self.limpar_coord(self.ent_coord_5))
+        # self.clr_coord_5.place(relx=0.52, y=372)
 
         #---------------------------------OUTPUT MENSAGENS-----------------------------------------
         self.lb_msg = Label(self.sigframe, text='Mensagens:', background='lightblue', font='Arial')
@@ -131,7 +131,7 @@ class Application:
         self.actual_day.place(relx=0.01, y=25)
         self.lb_bar = Label(self.frame_1, text='/', background='#009DE0')
         self.lb_bar.place(x=50, y=25)
-        self.use_actual = Checkbutton(self.frame_1, text='Usar horário atual', background='#009DE0', variable=self.var_use_actual, command=self.atualizar_validade)
+        self.use_actual = Checkbutton(self.frame_1, text="Usar horário atual + 2'", background='#009DE0', variable=self.var_use_actual, command=self.atualizar_validade)
         self.use_actual.place(x=110, y=24)
         self.valid_1 = Entry(self.frame_1, textvariable=self.h1var)
         self.valid_1.place(x=20, y=26, width=28)
@@ -275,7 +275,7 @@ class Application:
 
     def atualizar_validade(self):
         if self.var_use_actual.get() == 1:
-            data_hora_utc = datetime.now(self.utc_zone).strftime("%H%M")
+            data_hora_utc = (datetime.now(self.utc_zone) + timedelta(minutes=2)).strftime("%H%M")
             self.valid_1.delete(0, END)
             self.valid_1.insert(0, data_hora_utc)
             self.valid_1.config(state='readonly')
@@ -386,6 +386,7 @@ class Application:
         return last_seq_number
 
     def create_sigs(self):
+        print(int(datetime.now(self.utc_zone) - timedelta(minutes=5)).strftime("%d%H%M"))
         self.has_saved = False
         if not hasattr(self, "sigmet_list"):
             self.sigmet_list = []
