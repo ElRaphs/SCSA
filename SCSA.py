@@ -27,7 +27,9 @@ class Application:
         self.op_var = StringVar()
         self.var_use_actual = IntVar()
         self.multi_var = IntVar()
+        self.multi_var_air = IntVar()
         self.multi_var.set(1)
+        self.multi_var_air.set(1)
         self.previsor_var = StringVar()
         self.sig_type.set('EMBD TS')
         self.fcst_type = StringVar()
@@ -61,6 +63,7 @@ class Application:
 
         self.frame_1 = Frame(self.sigframe, bd=2, bg='#009DE0', highlightbackground='yellow', highlightthickness=3)
         self.frame_1.place(relx=0.57, rely=0.02, relwidth=0.42, relheight=0.55)
+        self.frame_2 = Frame(self.airframe, bd=2, bg='#009DE0', highlightbackground='yellow', highlightthickness=3)
 
     def sigtab(self):
         self.utc_zone = pytz.utc
@@ -333,7 +336,7 @@ class Application:
             self.ent_previsor.configure(bg='white')
 
         if all_fine:
-            self.create_sigs()
+            self.create_msg()
 
     def copy_all_func(self):
         self.root.clipboard_clear()
@@ -385,8 +388,7 @@ class Application:
                         
         return last_seq_number
 
-    def create_sigs(self):
-        print(int(datetime.now(self.utc_zone) - timedelta(minutes=5)).strftime("%d%H%M"))
+    def create_msg(self):
         self.has_saved = False
         if not hasattr(self, "sigmet_list"):
             self.sigmet_list = []
