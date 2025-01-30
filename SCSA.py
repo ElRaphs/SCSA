@@ -6,7 +6,6 @@ import pytz
 import csv
 import os
 
-sig_types_list = ['EMBD TS', 'SEV TURB', 'SEV ICE']
 firs_list = ['SBAZ', 'SBCW', 'SBBS', 'SBRE', 'SBAO']
 envios_list = ['OPMET', 'SIMM', 'MHS']
 root = Tk()
@@ -120,8 +119,8 @@ class Application:
         self.out_msg.place(relx=0.01, y= 470, relwidth=0.98, relheight=0.35)
         self.copy_all = Button(self.sigframe, text='Copiar Tudo', command=lambda: self.copy_all_func())
         self.copy_all.place(x=1049, y=442)
-        self.create_msg = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.check_error())
-        self.create_msg.place(x=960, y=442)
+        self.create_msg_button = Button(self.sigframe, text='Criar SIGMETs', command=lambda: self.check_error())
+        self.create_msg_button.place(x=960, y=442)
         self.del_msg = Button(self.sigframe, text='Limpar Mensagens', command=lambda: self.ask_clr_msg())
         self.del_msg.place(x=1200, y=442)
         self.gen_csv_bt = Button(self.sigframe, text='Salvar CSV', command=lambda: self.create_csv())#, command=lambda: self.clr_msg())
