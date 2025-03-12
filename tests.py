@@ -41,6 +41,7 @@ class Application(SigmetTab, AirmetTab, FunctionsAM, FunctionsSM):
         self.air_previsor_var = StringVar()
 
         self.sig_type.set('EMBD TS')
+        self.air_type.set('SFC VIS')
         self.fcst_type = StringVar()
         self.fcst_type.set('FCST')
         self.air_fcst_type = StringVar()
